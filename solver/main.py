@@ -16,13 +16,23 @@ colors = {
 
 # Face color states
 cube_state = {
-    'front': ['BLACK'] * 9,
-    'back': ['BLACK'] * 9,
-    'left': ['BLACK'] * 9,
+    'up': ['BLACK'] * 9,
     'right': ['BLACK'] * 9,
-    'top': ['BLACK'] * 9,
-    'bottom': ['BLACK'] * 9
+    'front': ['BLACK'] * 9,
+    'down': ['BLACK'] * 9,
+    'left': ['BLACK'] * 9,
+    'back': ['BLACK'] * 9
 }
+
+scan_helper_text_dict = {
+    'up': ['WHITE', 'blue'],
+    'right': ['RED', 'white'],
+    'front': ['GREEN', 'white'],
+    'down': ['YELLOW', 'green'],
+    'left': ['ORANGE', 'white'],
+    'back': ['BLUE', 'white']
+}
+
 
 def get_color(h, s, v):
     if (h in range(170, 180) and s in range(120,255) and v in range(70,255)):
@@ -80,7 +90,12 @@ def scan_faces(face,cap):
 
         detect_color(cx, cy, frame, hsv)
 
-        cv2.putText(frame, f"{face}", (cx-75, cy-100), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0))
+        cv2.putText(frame, f"{scan_helper_text_dict[face][0]}", (cx-75, cy-80), cv2.FONT_HERSHEY_SIMPLEX, 1, (int(colors[scan_helper_text_dict[face][0]][0][0][0]),
+                                                                                                              int(colors[scan_helper_text_dict[face][0]][0][0][1]),
+                                                                                                              int(colors[scan_helper_text_dict[face][0]][0][0][2])), 2)
+        cv2.putText(frame, f"({scan_helper_text_dict[face][1]} on top)", (cx-75, cy-110), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (int(colors[scan_helper_text_dict[face][1].upper()][0][0][0]),
+                                                                                                                          int(colors[scan_helper_text_dict[face][1].upper()][0][0][1]),
+                                                                                                                          int(colors[scan_helper_text_dict[face][1].upper()][0][0][2])), 2)
 
         # Top Row
         s1 = cv2.rectangle(frame, (cx-75, cy-75), (cx-25, cy-25), (0, 255, 0), 1)
@@ -112,18 +127,19 @@ cv2.waitKey(1)
 
 pprint(cube_state)
 
-# def format_cube_state(cube_state):
-#     color_map = {'GREEN': 'F', 
-#                  'WHITE': 'U', 
-#                  'ORANGE': 'L',
-#                  'RED': 'R',
-#                  'YELLOW': 'D',
-#                  'BLUE': 'B'} 
-#     return ''.join([color_map[color] for face in cube_state for color in cube_state[face]])
+def format_cube_state(cube_state):
+    color_map = {'GREEN': 'F', 
+                 'WHITE': 'U', 
+                 'ORANGE': 'L',
+                 'RED': 'R',
+                 'YELLOW': 'D',
+                 'BLUE': 'B'} 
+    return ''.join([color_map[color] for face in cube_state for color in cube_state[face]])
 
 
-# formatted_state=format_cube_state(cube_state)
-# pprint(formatted_state)
+formatted_state=format_cube_state(cube_state)
+pprint(formatted_state)
 
-# solution = kociemba.solve(formatted_state)
-# print(f'Solution: {solution}')
+solution = kociemba.solve(formatted_state)
+
+print(f'Solution: {solution}')
