@@ -1,4 +1,4 @@
-from main import cube_state
+from main import cube_state, solution
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -22,6 +22,13 @@ app.add_middleware(
 def get_cube_state():
     try:
         return cube_state
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/solution")
+def get_solution():
+    try:
+        return solution
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
