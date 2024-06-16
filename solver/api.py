@@ -31,6 +31,7 @@ def get_solution():
         return solution
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+    
 
 if __name__ == "__main__":
     import uvicorn

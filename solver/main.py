@@ -74,7 +74,7 @@ def detect_color(cx, cy, frame, hsv):
 
     return face_colors
 
-cap = cv2.VideoCapture(0)
+# cap = cv2.VideoCapture(0)
 def scan_faces(face,cap):
     cap.set(cv2.CAP_PROP_FRAME_WIDTH, 500)
     cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 500)
@@ -118,6 +118,10 @@ def scan_faces(face,cap):
             cube_state[face] = detect_color(cx, cy, frame, hsv)
             break
     
+
+cap = cv2.VideoCapture(0)
+
+
 for face in cube_state.keys():
     scan_faces(face, cap)
 
