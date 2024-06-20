@@ -74,13 +74,15 @@ def detect_color(cx, cy, frame, hsv):
 
     return face_colors
 
-# cap = cv2.VideoCapture(0)
 def scan_faces(face,cap):
     cap.set(cv2.CAP_PROP_FRAME_WIDTH, 500)
     cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 500)
 
     while True:
-        _, frame = cap.read()
+        ret, frame = cap.read()
+        if not ret:
+            break
+
         height, width, _ = frame.shape
 
         hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
@@ -110,40 +112,41 @@ def scan_faces(face,cap):
         s8 = cv2.rectangle(frame, (cx-25, cy+25), (cx+25, cy+75), (0, 255, 0), 1)
         s9 = cv2.rectangle(frame, (cx+25, cy+25), (cx+75, cy+75), (0, 255, 0), 1)
 
-
         cv2.imshow('frame', frame)
-
+       
         # lock in face by hitting return key
         if cv2.waitKey(1) & 0xFF == ord('\r'):
             cube_state[face] = detect_color(cx, cy, frame, hsv)
             break
+
+        # binary_string = cv2.imencode('.png', frame)[1].tobytes()
+        # yield (b'--frame\r\n' b'Content-Type: image/jpeg\r\n\r\n' +
+        #             binary_string + b'\r\n') 
     
+# cap = cv2.VideoCapture(0)
 
-cap = cv2.VideoCapture(0)
+# for face in cube_state.keys():
+#     scan_faces(face, cap)
 
-
-for face in cube_state.keys():
-    scan_faces(face, cap)
-
-cap.release()
-cv2.destroyAllWindows()
-cv2.waitKey(1)
+# cap.release()
+# cv2.destroyAllWindows()
+# cv2.waitKey(1)
 
 pprint(cube_state)
 
-def format_cube_state(cube_state):
-    color_map = {'GREEN': 'F', 
-                 'WHITE': 'U', 
-                 'ORANGE': 'L',
-                 'RED': 'R',
-                 'YELLOW': 'D',
-                 'BLUE': 'B'} 
-    return ''.join([color_map[color] for face in cube_state for color in cube_state[face]])
+# def format_cube_state(cube_state):
+#     color_map = {'GREEN': 'F', 
+#                  'WHITE': 'U', 
+#                  'ORANGE': 'L',
+#                  'RED': 'R',
+#                  'YELLOW': 'D',
+#                  'BLUE': 'B'} 
+#     return ''.join([color_map[color] for face in cube_state for color in cube_state[face]])
 
 
-formatted_state=format_cube_state(cube_state)
-pprint(formatted_state)
+# formatted_state=format_cube_state(cube_state)
+# pprint(formatted_state)
 
-solution = kociemba.solve(formatted_state)
+# solution = kociemba.solve(formatted_state)
 
-print(f'Solution: {solution}')
+# print(f'Solution: {solution}')
