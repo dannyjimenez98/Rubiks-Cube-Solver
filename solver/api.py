@@ -1,5 +1,4 @@
-from main import cube_state, scan_faces, scan_helper_text_dict, colors, detect_color 
-# format_cube_state
+from main import cube_state, scan_faces, scan_helper_text_dict, colors, detect_color
 # ,solution
 from fastapi import FastAPI, HTTPException, Response, Depends, Request, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
@@ -10,7 +9,7 @@ import kociemba
 
 app = FastAPI()
 
-cap = cv2.VideoCapture(0)
+# cap = cv2.VideoCapture(0)
 
 # Allow connection with frontend (React)
 origins = [
@@ -48,25 +47,23 @@ def get_solution():
     try:
         formatted_state=format_cube_state(cube_state)
         solution = kociemba.solve(formatted_state)
-        if solution:
-            print(solution)
         return solution
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
     
 
-current_face_index = 0
-faces = list(cube_state.keys())
-key_pressed=None
+# scanning_complete = False
 def generate(cap):
     global key_pressed, current_face_index, scanning_complete
+    faces = list(cube_state.keys())
+    current_face_index = 0
     scanning_complete = False
+    key_pressed = None
     try:
-        key_pressed = None
         cap.set(cv2.CAP_PROP_FRAME_WIDTH, 500)
         cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 500)
         while True:            
-            ret, frame = cap.read()
+            _, frame = cap.read()
             height, width, _ = frame.shape
             hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
 
@@ -76,26 +73,47 @@ def generate(cap):
             current_face = faces[current_face_index]
             detect_color(cx, cy, frame, hsv)
             
-            cv2.putText(frame, f"{scan_helper_text_dict[current_face][0]}", (cx-75, cy-80), cv2.FONT_HERSHEY_SIMPLEX, 1, (int(colors[scan_helper_text_dict[current_face][0]][0][0][0]),
+            font = cv2.FONT_HERSHEY_SIMPLEX
+            FACE_HELPER_FONT_SCALE = 1.5
+            TOP_FACE_HELPER_FONT_SCALE = 1
+            face_helper_text = f"{scan_helper_text_dict[current_face][0]}"
+            top_face_helper_text = f"({scan_helper_text_dict[current_face][1]} on top)"
+            face_helper_text_size = cv2.getTextSize(face_helper_text, font, FACE_HELPER_FONT_SCALE, 2)[0]
+            top_face_helper_text_size = cv2.getTextSize(top_face_helper_text, font, TOP_FACE_HELPER_FONT_SCALE, 2)[0]
+
+            # get coords based on boundary
+            textX = int((width - face_helper_text_size[0]) / 2)
+            textY = int((height + face_helper_text_size[1]) / 2)
+            top_textX = int((width - top_face_helper_text_size[0]) / 2)
+            top_textY = int((height + top_face_helper_text_size[1]) / 2)
+
+
+
+            cv2.putText(frame, face_helper_text, (textX, textY-180), font, FACE_HELPER_FONT_SCALE, (int(colors[scan_helper_text_dict[current_face][0]][0][0][0]),
                                                                                                               int(colors[scan_helper_text_dict[current_face][0]][0][0][1]),
                                                                                                               int(colors[scan_helper_text_dict[current_face][0]][0][0][2])), 2)
-            cv2.putText(frame, f"({scan_helper_text_dict[current_face][1]} on top)", (cx-75, cy-110), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (int(colors[scan_helper_text_dict[current_face][1].upper()][0][0][0]),
-                                                                                                                          int(colors[scan_helper_text_dict[current_face][1].upper()][0][0][1]),
-                                                                                                                          int(colors[scan_helper_text_dict[current_face][1].upper()][0][0][2])), 2)
-
+            cv2.putText(frame, top_face_helper_text, (top_textX, top_textY-220), font, TOP_FACE_HELPER_FONT_SCALE, (int(colors[scan_helper_text_dict[current_face][1].upper()][0][0][0]),
+                                                                                                                        int(colors[scan_helper_text_dict[current_face][1].upper()][0][0][1]),
+                                                                                                                        int(colors[scan_helper_text_dict[current_face][1].upper()][0][0][2])), 2)
             
             # Top Row
-            cv2.rectangle(frame, (cx-75, cy-75), (cx-25, cy-25), (0, 255, 0), 1)
-            cv2.rectangle(frame, (cx-25, cy-75), (cx+25, cy-25), (0, 255, 0), 1)
-            cv2.rectangle(frame, (cx+25, cy-75), (cx+75, cy-25), (0, 255, 0), 1)
+            cv2.rectangle(frame, (cx-150, cy-150), (cx-50, cy-50), (0, 255, 0), 1)
+            cv2.rectangle(frame, (cx-50, cy-150), (cx+50, cy-50), (0, 255, 0), 1)
+            cv2.rectangle(frame, (cx+50, cy-150), (cx+150, cy-50), (0, 255, 0), 1)
             # Middle Row
-            cv2.rectangle(frame, (cx-75, cy-25), (cx-25, cy+25), (0, 255, 0), 1)
-            cv2.rectangle(frame, (cx-25, cy-25), (cx+25, cy+25), (0, 255, 0), 1)
-            cv2.rectangle(frame, (cx+25, cy-25), (cx+75, cy+25), (0, 255, 0), 1)
+            cv2.rectangle(frame, (cx-150, cy-50), (cx-50, cy+50), (0, 255, 0), 1)
+            cv2.rectangle(frame, (cx-50, cy-50), (cx+50, cy+50), (0, 255, 0), 1)
+            cv2.rectangle(frame, (cx+50, cy-50), (cx+150, cy+50), (0, 255, 0), 1)
             # Bottom Row
-            cv2.rectangle(frame, (cx-75, cy+25), (cx-25, cy+75), (0, 255, 0), 1)
-            cv2.rectangle(frame, (cx-25, cy+25), (cx+25, cy+75), (0, 255, 0), 1)
-            cv2.rectangle(frame, (cx+25, cy+25), (cx+75, cy+75), (0, 255, 0), 1)
+            cv2.rectangle(frame, (cx-150, cy+50), (cx-50, cy+150), (0, 255, 0), 1)
+            cv2.rectangle(frame, (cx-50, cy+50), (cx+50, cy+150), (0, 255, 0), 1)
+            cv2.rectangle(frame, (cx+50, cy+50), (cx+150, cy+150), (0, 255, 0), 1)
+
+             # Draw the grid for the Rubik's cube face
+            # for i in range(-1, 2):
+            #     for j in range(-1, 2):
+            #         cv2.rectangle(frame, (cx + i*50 - 25, cy + j*50 - 25), (cx + i*50 + 25, cy + j*50 + 25), (0, 255, 0), 1)
+
 
 
             binary_string = cv2.imencode('.png', frame)[1].tobytes()
@@ -103,14 +121,16 @@ def generate(cap):
                         binary_string + b'\r\n') 
             
             if key_pressed == "enter":
-                print(current_face_index)
-                print(len(faces)-1)
                 cube_state[current_face] = detect_color(cx, cy, frame, hsv)
                 key_pressed = None
-                print(current_face_index == len(faces)-1)
                 current_face_index+=1
-                if (current_face_index >= len(faces)):
+                if (current_face_index == len(faces)):
                     scanning_complete = True
+                    break
+        cap.release()
+        cv2.destroyAllWindows()
+        cv2.waitKey(1)
+
 
     except:
         print("disconnected")
@@ -134,9 +154,8 @@ async def key_press(request: Request):
 
 @app.post("/stop_video")
 async def stop_video():
-    global scanning_complete
     if (scanning_complete == True):
-        cap.release()
+        # cap.release()
         cv2.destroyAllWindows()
         cv2.waitKey(1)
         return scanning_complete

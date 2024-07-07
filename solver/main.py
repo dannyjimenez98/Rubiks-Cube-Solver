@@ -53,9 +53,9 @@ def get_color(h, s, v):
 def detect_color(cx, cy, frame, hsv):
     # center point of each sticker of a face that detects the sticker color
     sticker_centers = [
-        [cx-50, cy-50], [cx+00, cy-50], [cx+50, cy-50],
-        [cx-50, cy+00], [cx+00, cy+00], [cx+50, cy+00],
-        [cx-50, cy+50], [cx+00, cy+50], [cx+50, cy+50],
+        [cx-100, cy-100], [cx+00, cy-100], [cx+100, cy-100],
+        [cx-100, cy+00], [cx+00, cy+00], [cx+100, cy+00],
+        [cx-100, cy+100], [cx+00, cy+100], [cx+100, cy+100],
     ]
 
     # TODO: for logo, try getting hsv values for the center at different pixels, then average them out to get color
@@ -69,7 +69,7 @@ def detect_color(cx, cy, frame, hsv):
         color = get_color(h, s, v)
         
         b, g, r = int(colors[color][0][0][0]), int(colors[color][0][0][1]), int(colors[color][0][0][2])
-        cv2.rectangle(frame, (c[0]-5, c[1]+5), (c[0]+5, c[1]-5), (b, g, r), -1)
+        cv2.rectangle(frame, (c[0]-10, c[1]+10), (c[0]+10, c[1]-10), (b, g, r), -1)
         face_colors.append(color)
 
     return face_colors
