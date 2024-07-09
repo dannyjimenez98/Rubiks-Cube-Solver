@@ -42,14 +42,7 @@ def format_cube_state(cube_state):
                  'BLUE': 'B'} 
     return ''.join([color_map[color] for face in cube_state for color in cube_state[face]])
 
-@app.get("/solution")
-def get_solution():
-    try:
-        formatted_state=format_cube_state(cube_state)
-        solution = kociemba.solve(formatted_state)
-        return solution
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+
     
 
 # scanning_complete = False
@@ -154,11 +147,21 @@ async def key_press(request: Request):
 
 @app.post("/stop_video")
 async def stop_video():
+    global scanning_complete
     if (scanning_complete == True):
         # cap.release()
         cv2.destroyAllWindows()
         cv2.waitKey(1)
         return scanning_complete
+    
+@app.get("/solution")
+def get_solution():
+    try:
+        formatted_state=format_cube_state(cube_state)
+        solution = kociemba.solve(formatted_state)
+        return solution
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
     
 if __name__ == "__main__":
     import uvicorn

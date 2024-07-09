@@ -16,12 +16,12 @@ colors = {
 
 # Face color states
 cube_state = {
-    'up': ['BLACK'] * 9,
-    'right': ['BLACK'] * 9,
-    'front': ['BLACK'] * 9,
-    'down': ['BLACK'] * 9,
-    'left': ['BLACK'] * 9,
-    'back': ['BLACK'] * 9
+    'up': [None] * 9,
+    'right': [None] * 9,
+    'front': [None] * 9,
+    'down': [None] * 9,
+    'left': [None] * 9,
+    'back': [None] * 9
 }
 
 scan_helper_text_dict = {
