@@ -3,8 +3,10 @@ import axios from 'axios';
 import RubiksCube from './components/RubiksCube';
 import VideoFeed from './components/VideoFeed';
 import solvedState from './customClasses/solvedState';
-import Home from './components/Home';
+import Header from './components/Header';
 import Button from 'react-bootstrap/Button';
+import ErrorMessage from './components/ErrorMessage';
+
 
 function App() {
   const [cubeState, setCubeState] = useState(null);
@@ -12,6 +14,7 @@ function App() {
   const [startVideo, setStartVideo] = useState(false);
   const [scanningComplete, setScanningComplete] = useState(false);
   const [errorMessage, setErrorMessage] = useState(null);
+  const [showErrorMsg, setShowErrorMsg] = useState(false);
 
   useEffect(() => {
     async function fetchCubeState() {
@@ -37,18 +40,20 @@ function App() {
             setSolution(response.data);
             setErrorMessage(null);  // Clear any previous error messages
           } else {
-            setErrorMessage('Cube already solved. Please try again.');
             setScanningComplete(false);
             setStartVideo(false);  // Restart the video feed
+            setErrorMessage('Cube already solved. ');
+            setShowErrorMsg(true);
           }
         } else {
           throw new Error('No valid solution found');
         }
       } catch (error) {
         console.error('Error fetching solution:', error);
-        setErrorMessage('No valid solution found. Please try again.');
         setScanningComplete(false);
         setStartVideo(false);  // Restart the video feed
+        setErrorMessage('No valid solution found. ');
+        setShowErrorMsg(true);
       }
     }
 
@@ -59,15 +64,18 @@ function App() {
 
   return (
     <div className="App">
-      <Home />
-      {errorMessage && <div className="error-message">{errorMessage}</div>}
-      {solution 
+      <Header />
+      {errorMessage && showErrorMsg ?
+        <ErrorMessage errorMessage={errorMessage} setShowErrorMsg={setErrorMessage} />
+        : <></>
+      }
+      {solution && (JSON.stringify(cubeState) !== JSON.stringify(solvedState))
         ?
           <RubiksCube cubeState={cubeState} solution={solution.split(" ")} />
         : <div className="d-flex justify-content-center">
             {!startVideo 
-              ? <Button variant="primary" onClick={() => setStartVideo(true)}>Start Video</Button>
-              : <VideoFeed setScanningComplete={setScanningComplete} setErrorMessage={setErrorMessage} />
+              ? <div className="d-flex m-5"><Button variant="primary" onClick={() => setStartVideo(true)}>Start Scanning</Button></div> 
+              : <VideoFeed setScanningComplete={setScanningComplete} setErrorMessage={setErrorMessage} setShowErrorMsg={setShowErrorMsg} />
             }
           </div>
       }

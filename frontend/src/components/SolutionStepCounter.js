@@ -8,10 +8,9 @@ export function SolutionStepCounter({
 }) 
 {
   const [currentStepIndex, setCurrentStepIndex] = useState(0)
-
+  const [start, setStart] = useState(false);
 
   const handleNext = () => {
-    console.log(currentStepIndex)
     if (currentStepIndex < solution.length) {
         showCurrentMove(solution[currentStepIndex])
         setCurrentStepIndex(currentStepIndex + 1);
@@ -32,12 +31,11 @@ const handlePrevious = () => {
     
 };
 
-const [start, setStart] = useState(false);
+
 
 const toggleStart = () => {
     if (!start) { 
         setStart(true) 
-        console.log(currentStepIndex)
         showCurrentMove(solution[currentStepIndex])
         setCurrentStepIndex(currentStepIndex + 1);
     } else {
@@ -66,14 +64,14 @@ const toggleStart = () => {
             </>
           }
         </div>
+        <div className="d-flex justify-content-center mt-2 p-2">
           {currentStepIndex === solution.length
           ? 
-          <div className="d-flex justify-content-center">
             <h2>SOLVED</h2>
-          </div>
-          :
-          <></>
-        }
+            :
+            <></>
+          }
+        </div>
     </div>
   </div>
     );
