@@ -10,7 +10,8 @@ function App() {
   const [cubeState, setCubeState] = useState(null);
   const [solution, setSolution] = useState(null);
   const [startVideo, setStartVideo] = useState(false);
-
+  const [scanningComplete, setScanningComplete] = useState(false);
+  const [errorMessage, setErrorMessage] = useState(null);
 
   useEffect(() => {
     async function fetchCubeState() {
@@ -22,72 +23,54 @@ function App() {
       }
     }
 
-    fetchCubeState();
-  }, []);
-
-  console.log(cubeState)
+    if (scanningComplete) {
+      fetchCubeState();
+    }
+  }, [scanningComplete]);
 
   useEffect(() => {
     async function fetchSolution() {
       try {
-        // if (scanningComplete) {
-          const response = await axios.get('http://127.0.0.1:8000/solution');
-          setSolution(response.data);
-        // }
+        const response = await axios.get('http://127.0.0.1:8000/solution');
+        if (response.data) {
+          if (JSON.stringify(cubeState) !== JSON.stringify(solvedState)) {
+            setSolution(response.data);
+            setErrorMessage(null);  // Clear any previous error messages
+          } else {
+            setErrorMessage('Cube already solved. Please try again.');
+            setScanningComplete(false);
+            setStartVideo(false);  // Restart the video feed
+          }
+        } else {
+          throw new Error('No valid solution found');
+        }
       } catch (error) {
-        console.error('Error fetching solution:', error.response.data);
-        // console.error(error.response.data);
+        console.error('Error fetching solution:', error);
+        setErrorMessage('No valid solution found. Please try again.');
+        setScanningComplete(false);
+        setStartVideo(false);  // Restart the video feed
       }
     }
-    console.log(`solution: ${solution}`)
 
+    if (scanningComplete && cubeState) {
       fetchSolution();
-    
-  }, []);
-  
+    }
+  }, [scanningComplete, cubeState]);
 
   return (
     <div className="App">
-      <Home/>
-     
-      {/* <div className="d-flex justify-content-center">
-          {!startVideo 
-          ? <Button variant="primary" onClick={() => setStartVideo(true)}>Start Video</Button>
-          : 
-          <>
-          {console.log(solution)}
-              <VideoFeed solution={solution} scanningComplete={scanningComplete} setScanningComplete={setScanningComplete}/>
-            </>
-          }
-        </div> */}
-      
-
+      <Home />
+      {errorMessage && <div className="error-message">{errorMessage}</div>}
       {solution 
         ?
-        <>
-            {(JSON.stringify(cubeState) !== JSON.stringify(solvedState)) ? <RubiksCube cubeState={cubeState} solution={solution.split(" ")} /> 
-            : 
-            <div className='d-flex justify-content-center'>
-            {/* <div class="alert alert-warning alert-dismissible fade show" role="alert">
-            <strong>Cube already solved!</strong> Please try again.
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div> */}
-            <span>Cube already solved</span>
-            <Button variant="primary" onClick={() => setSolution(false)}>Restart</Button>
-            </div>}
-        </> 
-        : 
-
-        <div className="d-flex justify-content-center">
-          {!startVideo 
-          ? <Button variant="primary" onClick={() => setStartVideo(true)}>Start Video</Button>
-          : 
-            <>
-              <VideoFeed solution={solution}/>
-            </>
-          }
-        </div>
-  }
+          <RubiksCube cubeState={cubeState} solution={solution.split(" ")} />
+        : <div className="d-flex justify-content-center">
+            {!startVideo 
+              ? <Button variant="primary" onClick={() => setStartVideo(true)}>Start Video</Button>
+              : <VideoFeed setScanningComplete={setScanningComplete} setErrorMessage={setErrorMessage} />
+            }
+          </div>
+      }
     </div>
   );
 }
