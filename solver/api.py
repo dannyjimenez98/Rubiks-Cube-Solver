@@ -9,8 +9,6 @@ import kociemba
 
 app = FastAPI()
 
-# cap = cv2.VideoCapture(0)
-
 # Allow connection with frontend (React)
 origins = [
     "http://localhost:3000",
@@ -24,7 +22,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
 
 @app.get("/cube_state")
 def get_cube_state():
@@ -42,10 +39,6 @@ def format_cube_state(cube_state):
                  'BLUE': 'B'} 
     return ''.join([color_map[color] for face in cube_state for color in cube_state[face]])
 
-
-    
-
-# scanning_complete = False
 def generate(cap):
     global key_pressed, current_face_index, scanning_complete
     faces = list(cube_state.keys())
@@ -101,13 +94,6 @@ def generate(cap):
             cv2.rectangle(frame, (cx-150, cy+50), (cx-50, cy+150), (0, 255, 0), 1)
             cv2.rectangle(frame, (cx-50, cy+50), (cx+50, cy+150), (0, 255, 0), 1)
             cv2.rectangle(frame, (cx+50, cy+50), (cx+150, cy+150), (0, 255, 0), 1)
-
-             # Draw the grid for the Rubik's cube face
-            # for i in range(-1, 2):
-            #     for j in range(-1, 2):
-            #         cv2.rectangle(frame, (cx + i*50 - 25, cy + j*50 - 25), (cx + i*50 + 25, cy + j*50 + 25), (0, 255, 0), 1)
-
-
 
             binary_string = cv2.imencode('.png', frame)[1].tobytes()
             yield (b'--frame\r\n' b'Content-Type: image/jpeg\r\n\r\n' +
