@@ -1,5 +1,4 @@
-from main import cube_state, scan_faces, scan_helper_text_dict, colors, detect_color
-# ,solution
+from color_detection import cube_state, scan_helper_text_dict, colors, detect_color
 from fastapi import FastAPI, HTTPException, Response, Depends, Request, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
@@ -39,6 +38,7 @@ def format_cube_state(cube_state):
                  'BLUE': 'B'} 
     return ''.join([color_map[color] for face in cube_state for color in cube_state[face]])
 
+scanning_complete = False
 def generate(cap):
     global key_pressed, current_face_index, scanning_complete
     faces = list(cube_state.keys())
@@ -135,11 +135,10 @@ async def key_press(request: Request):
 async def stop_video():
     global scanning_complete
     if (scanning_complete == True):
-        # cap.release()
         cv2.destroyAllWindows()
         cv2.waitKey(1)
         return scanning_complete
-    
+
 @app.get("/solution")
 def get_solution():
     try:

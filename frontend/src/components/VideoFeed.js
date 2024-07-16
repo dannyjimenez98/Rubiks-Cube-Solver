@@ -44,25 +44,29 @@ const VideoFeed = ({ setScanningComplete, setErrorMessage, setShowErrorMsg }) =>
         }
     };
 
-    const checkScanningComplete = async () => {
-        if (!scanningComplete) {
-            try {
-                const response = await axios.post("http://localhost:8000/stop_video", {}, {
-                    headers: {
-                        "Content-Type": "application/json"
+    useEffect(() => {
+        const checkScanningComplete = async () => {
+                try {
+                    const response = await axios.post("http://localhost:8000/stop_video", {}, {
+                        headers: {
+                            "Content-Type": "application/json"
+                        }
+                    });
+                    if (response.data === true) {
+                        setLocalScanningComplete(true);
+                        setScanningComplete(true);
                     }
-                });
-                if (response.data === true) {
-                    setLocalScanningComplete(true);
-                    setScanningComplete(true);
+                } catch (error) {
+                    console.error("Error stopping video:", error);
+                    setErrorMessage('Video Feed Error. ');
+                    setShowErrorMsg(true);
                 }
-            } catch (error) {
-                console.error("Error stopping video:", error);
-                setErrorMessage('Video Feed Error. ');
-                setShowErrorMsg(true);
-            }
+        };
+        if (!scanningComplete) {
+            const interval = setInterval(checkScanningComplete, 1000);
+            return () => clearInterval(interval);
         }
-    };
+    }, [scanningComplete]);
 
     useEffect(() => {
         window.addEventListener('keypress', handleKeyPress);
@@ -71,10 +75,6 @@ const VideoFeed = ({ setScanningComplete, setErrorMessage, setShowErrorMsg }) =>
         };
     }, []);
 
-    useEffect(() => {
-        const interval = setInterval(checkScanningComplete, 1000);
-        return () => clearInterval(interval);
-    }, [scanningComplete]);
 
     return (
         <div className='col-sm-12 col-md-6'>
