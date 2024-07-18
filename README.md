@@ -31,4 +31,4 @@ npm install
 ```bash
 npm start
 ```
-Go to ```bash http://localhost:3000``` and solve away!
+Go to ```http://localhost:3000``` and solve away!
