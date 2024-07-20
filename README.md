@@ -32,3 +32,7 @@ npm install
 npm start
 ```
 Go to ```http://localhost:3000``` and solve away!
+
+## Screenshots
+<img width="610" alt="Screenshot 2024-07-18 at 9 14 19 PM" src="https://github.com/user-attachments/assets/7327812e-3d7c-4c15-9ba1-20f9e311d56d">
+<img width="691" alt="Screenshot 2024-07-18 at 9 10 55 PM" src="https://github.com/user-attachments/assets/ae850f55-b00d-40e4-af11-cf6cd6c68e15">
