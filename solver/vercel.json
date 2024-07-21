@@ -1,0 +1,15 @@
+{
+    "builds": [
+        {
+            "src": "./api.py",
+            "use": "@vercel/python",
+            "config": { "buildCommand": "pip install --upgrade pip && pip install -r requirements.txt" }
+        }
+    ],
+    "routes": [
+        {
+            "src": "/(.*)",
+            "dest": "./api.py"
+        }
+    ]
+}

@@ -5,18 +5,20 @@ from fastapi.responses import StreamingResponse
 import cv2
 import json
 import kociemba
+from starlette.responses import FileResponse
+from starlette.staticfiles import StaticFiles
 
 app = FastAPI()
 
 # Allow connection with frontend (React)
-origins = [
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
-]
+# origins = [
+#     "http://localhost:3000",
+#     "http://127.0.0.1:3000",
+# ]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins="*",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -147,6 +149,17 @@ def get_solution():
         return solution
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+    
+# Frontend URL
+@app.get("/")
+def index():
+    return FileResponse("../frontend/build/index.html")
+
+@app.exception_handler(404)
+async def exception_404_handler(request, exc):
+    return FileResponse("../frontend/build/index.html")
+
+app.mount("/", StaticFiles(directory="../frontend/build/"), name="ui")
     
 if __name__ == "__main__":
     import uvicorn
